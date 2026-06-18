@@ -13,6 +13,16 @@ Convert the IDs of your keyboard to another keyboard for games with specific key
 Convert an Xbox controller into a Steal Battalion Controller, for fun.<br>
 Bind an Xbox360 controller with a chat pad to a generic keyboard and mouse.
 
+> [!WARNING]
+> This project is not vegan<br>
+> AI was used heavily in the production of this code base<br>
+> And I don't feel as bad about it as I use to. The tools are there and cheap enough, ima use them. And I don't feel like I have to defend this decision but here we are.<br>
+> It just feels weird to live in a world with power tools and then refuse to use them cos you don't like how the tools are made.<br>
+> If you are a vegan programmer, still like hand crafting with hand tools and do not agree with this then more power to you, but the warning is here and up front.<br>
+> Don't use or read this code if you don't want anything to do with AI.
+> I the squishy human, still did all the work, still figured out how to do it, still did all the hard work. the AI just laid it out for me. And its better at copy pasting them I am.<br>
+> Either I copy paste from stack overflow, or It copies from stack overflow. What's the difference.<br>
+
 # Why not just use Steamm Input
 Steam Input is a really grate system <i>however</i> it only works for games running under steam.<br>
 Pontifex Hidimus aims to be a little more flexibal and not relient on 3rd partys as much as we can (windows is poop)<br>
