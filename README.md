@@ -103,10 +103,6 @@ But the idea is if you can wright and ini or know QuakeC then you should be righ
 For QC, all docs relating to the things we have added are in [QC_USB_API_v4.md](docs/QC_USB_API_v4.md)<br>
 If the top off my head, our ini passer is the same as normal, just expanded with comments.<br><br>
 
-# Isn't a full raspberry pi kinda overkill for this?
-Yes.
-But it's easier to fully config things on the pi, and we did not have to strip anything out of our QCVM or go code. it all runs the full go stack. no tinygo cramming here.
-
 ```c
 void(bytes raw) parse =
 {
@@ -198,6 +194,10 @@ You don't need to re-program the whole input output pipe line for one new contro
 You don't need to re-program a new rapid fire macro for every new controller.<br>
 Just grab a new module and plug it into all the work that already exists with basic text edits.<br>
 And TBH making things your self is fun. who cares if it already exists, are you having fun and learning something? Then good.
+
+# Isn't a full raspberry pi kinda overkill for this?
+Yes.<br>
+But it's easier to fully config things on the pi, and we did not have to strip anything out of our QCVM or go code. The pi runs the full go stack. no tinygo cramming here.
 
 # Closing notes
 If you would perfer what the AI has to say about this project, you can read that here [AI.README.md](AI.README.md)
