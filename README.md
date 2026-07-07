@@ -103,6 +103,10 @@ But the idea is if you can wright and ini or know QuakeC then you should be righ
 For QC, all docs relating to the things we have added are in [QC_USB_API_v4.md](docs/QC_USB_API_v4.md)<br>
 If the top off my head, our ini passer is the same as normal, just expanded with comments.<br><br>
 
+# Isn't a full raspberry pi kinda overkill for this?
+Yes.
+But it's easier to fully config things on the pi, and we did not have to strip anything out of our QCVM or go code. it all runs the full go stack. no tinygo cramming here.
+
 ```c
 void(bytes raw) parse =
 {
