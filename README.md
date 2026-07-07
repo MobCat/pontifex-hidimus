@@ -177,6 +177,7 @@ void(bytes raw) parse =
 # How to get started
 ***TODO/placeholder:***
 Simple pi setup is get a pi zero 2 w for the "lite" build of this project<br>
+Check the [buildGuide.md](docs/buildGuide.md) for both the lite and max builds.
 Get the waveshare OLED hat with buttons<br>
 Get a micro sd card thats 1 to 32GB in size (really 1 or 2 GB is still more then you need)<br>
 Flash/etch the pi image to your sd card<br>
