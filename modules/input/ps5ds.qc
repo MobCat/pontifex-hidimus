@@ -15,7 +15,7 @@
 
 string MODULE_ID      = "ps5ds";
 string MODULE_NAME    = "PlayStation 5 DualSense";
-string MODULE_VERSION = "2.7.0";
+string MODULE_VERSION = "2.7.2";
 string MODULE_AUTHOR  = "MobCat";
 string ENGINE_VERSION = "4.5.0";
 int    VID            = 0x054C;
@@ -168,7 +168,7 @@ void() declare_signals =
 // the OUTPUT channel (LEDs via /sys/class/leds, rumble via force-feedback) and
 // overrides our 0x31 output writes. With our own unlock in place, hid-playstation
 // can be blacklisted on the dongle so feedback (rumble/haptics/LEDs) reaches the
-// pad. See docs/DualSense-USB-vs-BT.md.
+// pad. See docs/DualSense.md.
 //
 // USB needs no unlock — report 0x01 already carries the full payload.
 void() setup =
@@ -321,20 +321,39 @@ void(bytes raw) parse =
 // common block one byte earlier — the firmware accepts both layouts; we keep the
 // tagged Sony layout, so all common-block offsets here are capture offsets +1.
 
-// trigger_resistance builds a uniform adaptive-trigger RESISTANCE effect into the
-// output report at byte `off`, force `strength` (0-255) — the "fake FFB" turned into
-// a trigger feel. A config drives TRIGGER_*_STRENGTH (e.g. from a wheel's force); this
-// expands that one scalar into the 11-byte effect blob. strength 0 leaves the blob as
-// it is (so the raw-blob passthrough survives). DRAFT encoding: mode 0x01 = resistance,
-// start 0 = resist the whole pull — verify against a real capture ("capture reality").
+// trigger_resistance builds a UNIFORM adaptive-trigger resistance effect into the output
+// report at byte `off`, force `strength` (0-255) — the "fake FFB" turned into trigger feel.
+//
+// A DualSense resistance is NOT [mode, start, force]; it's a 10-ZONE effect:
+//   [0]    effect type 0x01 (resistance)
+//   [1..2] "active zones" bitmask, one bit per zone (10 zones -> 0x03FF)
+//   [3..6] a 3-bit force (0-7) packed per zone, little-endian
+//   [7..10] unused (0)
+// For a uniform pull we mark all 10 zones active (FF 03) and write the same 3-bit force
+// into every zone. 0x09249249 has one set bit at the base of each 3-bit zone field, so
+// multiplying it by v (<=7, no carry between fields) writes v into all ten zones at once.
+// (Uniform fill is symmetric, so the exact per-zone bit order doesn't matter here.)
+//
+// The controller only APPLIES this when valid_flag0's trigger bit is set (see
+// write_feedback). strength 0 leaves the blit'd blob untouched (trigger free). Format
+// ref: Nielk1/TriggerEffectGenerator. Effect type 0x21 is HARDWARE-CONFIRMED on our
+// DualSense (the older 0x01 "simple resistance" type did NOT take — see DualSense.md).
 void(int off, int strength) trigger_resistance =
 {
     if (strength <= 0) { return; }
-    set_feedback_byte(off + 0, 0x01);      // effect mode: resistance
-    set_feedback_byte(off + 1, 0x00);      // start position (0 = from the very start)
-    set_feedback_byte(off + 2, strength);  // force (0-255)
-    local int i = 3;                        // clear the remaining effect params
-    while (i < 11) { set_feedback_byte(off + i, 0); i = i + 1; }
+    local int v   = strength * 7 / 255;    // 0-255 force -> 0-7 per-zone amplitude
+    local int amp = 0x09249249 * v;        // v written into all ten 3-bit zone fields
+    set_feedback_byte(off + 0, 0x21);      // effect type: resistance (0x21 confirmed on hw)
+    set_feedback_byte(off + 1, 0xFF);      // active zones 0-7
+    set_feedback_byte(off + 2, 0x03);      // active zones 8-9
+    set_feedback_byte(off + 3, amp & 0xFF);
+    set_feedback_byte(off + 4, (amp >> 8) & 0xFF);
+    set_feedback_byte(off + 5, (amp >> 16) & 0xFF);
+    set_feedback_byte(off + 6, (amp >> 24) & 0xFF);
+    set_feedback_byte(off + 7, 0);
+    set_feedback_byte(off + 8, 0);
+    set_feedback_byte(off + 9, 0);
+    set_feedback_byte(off + 10, 0);
 };
 
 void() write_feedback =
@@ -347,6 +366,13 @@ void() write_feedback =
     // config/game) falls back to rumble+haptics so basic feedback always works.
     local int vf0 = get_feedback("FEATURE_FLAGS");
     if (vf0 == 0) { vf0 = 0x03; }
+    // Enable the adaptive-trigger FFB bits when a resistance strength is being driven
+    // (valid_flag0 bit 2 = R2, bit 3 = L2). WITHOUT these the controller silently
+    // ignores the trigger effect blob — which is why the "fake FFB" felt static. A raw
+    // passthrough config drives FEATURE_FLAGS itself and these signals stay 0, so it's
+    // unaffected.
+    if (get_feedback("TRIGGER_R_STRENGTH") > 0) { vf0 = vf0 | 0x04; }
+    if (get_feedback("TRIGGER_L_STRENGTH") > 0) { vf0 = vf0 | 0x08; }
 
     if (IS_BT) {
         set_feedback_byte(0, 0x31);
