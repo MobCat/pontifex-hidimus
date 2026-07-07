@@ -15,6 +15,7 @@ Convert the IDs of your keyboard to another keyboard for games with specific key
 Convert an Xbox controller into a Steal Battalion Controller, for fun.<br>
 Bind an Xbox 360 controller with a chat pad to a generic keyboard and mouse.<br>
 Map original xbox force feedback for racing wheels to ps5 DualSence adaptive triggers because why not.<br>
+(This was surprisingly affective even know the mapping is kinda skuffed. I mean your peddles don't get hard when your wheel is moving around. But the triggers do change when say braking and turning hard.)<br>
 The limit should only be what you can define in a QC module, not what drivers are available for our system and a dozen custom once off config apps for the mappings.<br>
 Pontifex HIDimus and its tools does all the hard work for you, you just have to make the modules and mappings. But lots of ini and qc files are provided as examples, or just to use out of the box if you don't want to program anything.
 
